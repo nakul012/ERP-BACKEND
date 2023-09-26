@@ -9,11 +9,17 @@ https://docs.djangoproject.com/en/2.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
-
+from pathlib import Path
 import os
+import environ
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+# env
+env = environ.Env()
+environ.Env.read_env()
 
 
 # Quick-start development settings - unsuitable for production
@@ -31,14 +37,27 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'mferp.apps.UserConfig',
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
 ]
+
+CUSTOM_APP = [
+    'mferp.apps.MasterTableConfig',
+    'mferp.apps.UserConfig',
+    'mferp.apps.DropsdownConfig',
+    # 'mferp.auth.user',
+    'django_extensions',
+]
+
+THIRD_PARTY_APP = ["rest_framework", "oauth2_provider", "corsheaders", "graphene_django",]
+INSTALLED_APPS.extend(CUSTOM_APP)
+INSTALLED_APPS.extend(THIRD_PARTY_APP)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -69,7 +88,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ops.wsgi.application'
-# AUTH_USER_MODEL = "mferp.auth.user.Account"
+AUTH_USER_MODEL = "user.Account"
+# AUTH_USER_MODEL = "user.CustomUser"
 
 
 # Database
@@ -120,3 +140,30 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+
+# OAuth2 Setting Configuration
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "oauth2_provider.contrib.rest_framework.OAuth2Authentication",
+        "rest_framework.authentication.TokenAuthentication",
+    )
+}
+
+# Token Expire Time
+OAUTH2_PROVIDER = {"ACCESS_TOKEN_EXPIRE_SECONDS": 8500}
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+BASE_URL = "http://127.0.0.1:8000"
+
+# Email Configuration
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_USE_TLS = True
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = "testerp053@gmail.com"
+MAIL_SENDING_USER = "ERP 3.0 <testerp053@gmail.com>"
+EMAIL_HOST_PASSWORD = env("GMAIL_PASSWORD")
+# EMAIL_HOST_PASSWORD = "lrdo afqo wbby kfog"
+EMAIL_PORT = 587
